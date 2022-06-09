@@ -3,9 +3,9 @@ app = Ursina()
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina.shaders import lit_with_shadows_shader
 from CustomPlayer import CustomPlayer
-import pickle
+import pickle, socket
 Entity.default_shader = lit_with_shadows_shader
-DirectionalLight(parent=scene, y=2, z=3, shadows=True)
+#DirectionalLight(parent=scene, y=2, z=3, shadows=True)
 Sky()
 class Block(Button):
     def __init__(self, **kwargs):
@@ -51,7 +51,10 @@ blocks= {}
 count=0
 deaths=0
 kills=0
-
+s = socket.socket()
+port = 32477
+connect_ip='127.0.0.1'
+s.connect((connect_ip, port))
 if loading:
     for i in list_blocks:
         b=Block(model='cube', color=color.green, texture="grass", position=(i[0], i[1], i[2]), collider='box')
@@ -62,7 +65,7 @@ if loading:
 del count
 def update():
     print(player.position, camera.rotation, held_keys['left mouse down'], held_keys['right mouse down'])
-    
+    s.send(bytes(str((player.position.x, player.position.y, player.position.z)), 'utf-8'))
     if player.position.y<-100:
         player.position=Vec3(0, 2, 0)
         try:
@@ -73,12 +76,14 @@ def update():
         mouse.visible=True
         
         raise Exception('Keeky', random.choice(['dumb', 'annoying', 'stupid']))
-    
-
+    recieve_data=eval(s.recv(1048576).decode())
+    for i in recieve_data:
+        p_pos=recieve_data[i]
+        
 window.fullscreen=True
 player = CustomPlayer()
 player.speed=10
-player.position=(0, 1, 0)
+player.position=(0, 3, 0)
 #player.fall_after=0.5
 
 app.run()
