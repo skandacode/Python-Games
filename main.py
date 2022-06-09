@@ -51,6 +51,7 @@ blocks= {}
 count=0
 deaths=0
 kills=0
+players=[]
 s = socket.socket()
 port = 32477
 connect_ip='127.0.0.1'
@@ -64,6 +65,12 @@ if loading:
             print(count)
 del count
 def update():
+    try:
+        for i in players:
+            destroy(i)
+    except:
+        pass
+    players=[]
     print(player.position, camera.rotation, held_keys['left mouse down'], held_keys['right mouse down'])
     s.send(bytes(str((player.position.x, player.position.y, player.position.z)), 'utf-8'))
     if player.position.y<-100:
@@ -72,14 +79,15 @@ def update():
             deaths+=1
         except:
             pass
+    
+    recieve_data=eval(s.recv(1048576).decode())
+    for i in recieve_data:
+        p_pos=recieve_data[i]
+        players.append(Entity(model='cube', texture='enimee', position=p_pos))
     if held_keys['escape']:
         mouse.visible=True
         
         raise Exception('Keeky', random.choice(['dumb', 'annoying', 'stupid']))
-    recieve_data=eval(s.recv(1048576).decode())
-    for i in recieve_data:
-        p_pos=recieve_data[i]
-        
 window.fullscreen=True
 player = CustomPlayer()
 player.speed=10
