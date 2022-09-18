@@ -39,7 +39,7 @@ class CustomPlayer(FirstPersonController):
         if self.gravity:
             # gravity
             ray = raycast(self.world_position+(0,self.height,0), self.down, ignore=(self,))
-            # ray = boxcast(self.world_position+(0,2,0), self.down, ignore=(self,))
+            #ray = boxcast(self.world_position+(0,2,0), self.down, ignore=(self,))
 
             if ray.distance <= self.height+.1:
                 if not self.grounded:
@@ -55,3 +55,4 @@ class CustomPlayer(FirstPersonController):
             # if not on ground and not on way up in jump, fall
             self.y -= min(self.air_time, ray.distance-.05) * time.dt * 100
             self.air_time += time.dt * .25 * self.gravity
+    

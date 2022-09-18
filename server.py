@@ -1,37 +1,44 @@
-import socket, random, json
+import socket, random, json, pickle
 from _thread import *
+
 s = socket.socket()
-data={}
-print ("Socket successfully created")
-port = 32477
-s.bind(('localhost', port))         
-print ("socket binded to %s" %(port)) 
-def toStr(l):
-    s=''
-    for i in l: 
-        s+=i
-    return s
-def serve(conn, client_ip):
-    global data
-    g=random.randint(0, 10000000000)
+fr = open('world.wld', 'rb')
+list_blocks = pickle.load(fr)
+world = {}
+all_players={}
+#1 is for grass, 2 is wood, 3 is stone
+
+for i in list_blocks:
+    world[i] = 1
+
+print("Socket successfully created")
+port = 25565
+s.bind((socket.gethostname(), port))
+print("socket binded to %s" % port)
+
+
+def serve(conn, ip):
     while True:
         try:
-            x=(conn.recv(1048576)).decode().split(', ')
-        except:
-            conn.close()
+            player, data = eval(conn.recv(1024).decode())
+            all_players[ip]=player
+            if data != None:
+                data=data[0]
+                data, block = (data[0:3], data[3])
+        except Exception as e:
+            print('disconnected from ' + str(ip)+ ' because '+e.__repr__())
+            print(data, type(data))
             break
-        data[g]=(x)
-        pas={}
-        for i in data:
-            if not i==g:
-                pas[i]=data[i]
-        #process and store x(data)
-        res_bytes=str(pas)
-        conn.send(bytes(res_bytes, 'utf-8'))
-s.listen()     
-print ("socket is listening")            
+        #print(data, type(data))
+        if data != None:
+            world[tuple(data)] = block
+            print(tuple(data))
+        conn.send(str((all_players, world)).encode())
+
+
+s.listen()
+print("socket is listening")
 while True:
     c, addr = s.accept()
     print(addr)
-    
     start_new_thread(serve, (c, addr[0]))
