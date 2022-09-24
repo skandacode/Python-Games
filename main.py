@@ -1,5 +1,5 @@
 from ursina import *
-
+from ursina.prefabs.first_person_controller import FirstPersonController
 app = Ursina()
 from ursina.shaders import *
 from CustomPlayer import CustomPlayer
@@ -33,7 +33,14 @@ class Block(Button):
         if self.hovered:
             if key == 'right mouse down':
                 if distance(self, player) < 7:
-                    changing=[(self.position.x+mouse.normal.x, self.position.y+mouse.normal.y, self.position.z+mouse.normal.z, 2)]
+                    if not self.position + mouse.normal == Vec3(
+                        round(player.position.x), round(player.position.y + 0.5),
+                        round(player.position.z)) and not self.position + mouse.normal == Vec3(round(player.position.x),
+                                                                                               round(
+                                                                                                   player.position.y + 1.5),
+                                                                                               round(
+                                                                                                   player.position.z)):
+                        changing=[(self.position.x+mouse.normal.x, self.position.y+mouse.normal.y, self.position.z+mouse.normal.z, 2)]
                     #block = Block(position=self.position + mouse.normal, color=color.white, texture='wood')
             if key == 'left mouse down':
                 if distance(self, player) < 7:
@@ -87,10 +94,10 @@ def update():
     #print(world==world_new)
     update_world(world, world_new)
     world=world_new
-    for i in all_players:
-        everybody.append(Entity(model='cube', position=all_players[i], color=color.white, texture='enimee', scale=(0.6, 2, 0.6)))
+    #for i in all_players:
+    #    everybody.append(Entity(model='cube', position=all_players[i], color=color.white, texture='enimee', scale=(0.6, 4, 0.6)))
 
 window.fullscreen=True
-player = CustomPlayer()
+player = FirstPersonController()
 app.run()
 s.close()

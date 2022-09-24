@@ -32,7 +32,7 @@ def serve(conn, ip):
         #print(data, type(data))
         if data != None:
             world[tuple(data)] = block
-            print(tuple(data))
+            #print(tuple(data))
         conn.send(str((all_players, world)).encode())
 
 
